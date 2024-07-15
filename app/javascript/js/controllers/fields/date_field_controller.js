@@ -121,6 +121,10 @@ export default class extends Controller {
     this.context.element.innerText = value.toFormat(this.formatValue)
   }
 
+  hasValue() {
+    return this.flatpickrInstance && this.flatpickrInstance.selectedDates.length > 0;
+  }
+
   initEdit() {
     const options = {
       enableTime: false,
@@ -198,16 +202,22 @@ export default class extends Controller {
     this.updateRealInput(value)
   }
 
+  updateClearButtonVisibility() {
+    this.clearButton.classList.toggle('hidden', !this.hasValue());
+  }
+
   addClearButtonToDatePicker() {
-    const clearButton = document.createElement("button");
-    clearButton.type = "button";
-    clearButton.className = "flatpickr-clear-button absolute top-1/2 -translate-y-1/2 mx-1.5";
-    clearButton.innerHTML = "&#x2716;"; // Unicode for an "X"
-    clearButton.addEventListener("click", () => {
+    this.clearButton = document.createElement("button");
+    this.clearButton.type = "button";
+    this.clearButton.className = "flatpickr-clear-button absolute top-1/2 -translate-y-1/2 mx-1.5";
+    this.clearButton.innerHTML = "&#x2716;"; // Unicode for an "X"
+    this.clearButton.addEventListener("click", () => {
       this.flatpickrInstance.clear(); 
       this.updateRealInput(''); 
+      this.updateClearButtonVisibility();
     });
-    this.fakeInputTarget.parentNode.appendChild(clearButton);
+    this.fakeInputTarget.parentNode.appendChild(this.clearButton);
+    this.updateClearButtonVisibility();
   }
 
   onChange(selectedDates) {
@@ -236,8 +246,8 @@ export default class extends Controller {
         value = timezonedDate.toISO()
         break
     }
-
     this.updateRealInput(value)
+    this.updateClearButtonVisibility();
   }
 
   // Value should be a string
